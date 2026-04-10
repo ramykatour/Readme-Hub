@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Readme Hub — Create & Edit GitHub README Files Online</title>
+    <meta name="description" content="Free online README file editor for GitHub. Create, preview, edit and export Markdown README files with live preview, templates, and syntax highlighting. No sign-up required.">
+    <meta name="keywords" content="README editor, GitHub README, markdown editor, README generator, README template, markdown preview, online markdown editor, GitHub README maker, README hub">
+    <meta name="author" content="Ramy Katour">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://readmehub.store">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Readme Hub — Create & Edit GitHub README Files Online">
+    <meta property="og:description" content="Free online tool to create, preview and export beautiful README files for your GitHub repositories. Multiple templates, live preview, no sign-up.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://readmehub.store">
+    <meta property="og:site_name" content="Readme Hub">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Readme Hub — GitHub README Editor">
+    <meta name="twitter:description" content="Create, edit and export README files with live Markdown preview. Free, fast, no sign-up.">
+    <meta name="twitter:creator" content="@ramykatour">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Readme Hub",
+        "description": "Free online README file editor with live preview, templates, and Markdown export for GitHub repositories.",
+        "url": "https://readmehub.store",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Any",
+        "author": {
+            "@type": "Person",
+            "name": "Ramy Katour",
+            "url": "https://github.com/ramykatour"
+        },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "featureList": ["Live Markdown Preview", "README Templates", "Download as .md File", "Copy to Clipboard", "Auto-Save", "Syntax Toolbar"]
+    }
+    </script>
+
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #0a0f0d;
+            --bg-elevated: #111916;
+            --bg-card: #16201b;
+            --fg: #e8f0ec;
+            --fg-muted: #7a9488;
+            --accent: #00e88f;
+            --accent-dim: #00c476;
+            --accent-glow: rgba(0, 232, 143, 0.15);
+            --border: #1e2e27;
+            --border-hover: #2a4038;
+            --danger: #ff5c5c;
+            --warning: #ffb84d;
+            --toolbar-bg: #0e1512;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--fg);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -40%; left: -20%;
+            width: 80vw; height: 80vw;
+            background: radial-gradient(circle, rgba(0,232,143,0.04) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -30%; right: -15%;
+            width: 60vw; height: 60vw;
+            background: radial-gradient(circle, rgba(0,200,118,0.03) 0%, transparent 55%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-hover); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--fg-muted); }
+
+        #editor {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.7;
+            background: transparent;
+            color: var(--fg);
+            border: none;
+            outline: none;
+            resize: none;
+            width: 100%;
+            height: 100%;
+            padding: 24px;
+            tab-size: 2;
+        }
+        #editor::placeholder { color: var(--fg-muted); opacity: 0.5; }
+
+        #preview {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--fg);
+            padding: 24px;
+            overflow-y: auto;
+            height: 100%;
+        }
+        #preview h1 {
+            font-size: 2em; font-weight: 800;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.4em; margin: 0.6em 0 0.8em;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent), #00ffa3);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        #preview h2 {
+            font-size: 1.5em; font-weight: 700;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.3em; margin: 1.2em 0 0.6em;
+            color: var(--accent);
+        }
+        #preview h3 { font-size: 1.2em; font-weight: 600; margin: 1em 0 0.5em; color: #b0f0d0; }
+        #preview h4 { font-size: 1.05em; font-weight: 600; margin: 1em 0 0.4em; color: #90dcc0; }
+        #preview p { margin: 0.6em 0; }
+        #preview a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+        #preview a:hover { color: #fff; }
+        #preview strong { color: #fff; font-weight: 700; }
+        #preview em { color: #a0d4bc; }
+        #preview code {
+            font-family: 'JetBrains Mono', monospace;
+            background: rgba(0,232,143,0.08);
+            color: var(--accent);
+            padding: 0.15em 0.45em;
+            border-radius: 4px;
+            font-size: 0.88em;
+            border: 1px solid rgba(0,232,143,0.1);
+        }
+        #preview pre {
+            background: #090e0b;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            overflow-x: auto;
+            margin: 1em 0;
+        }
+        #preview pre code {
+            background: none; border: none; padding: 0;
+            color: var(--fg); font-size: 0.85em; line-height: 1.6;
+        }
+        #preview blockquote {
+            border-left: 3px solid var(--accent);
+            padding: 0.5em 1em; margin: 1em 0;
+            background: var(--accent-glow);
+            border-radius: 0 6px 6px 0;
+            color: var(--fg-muted);
+        }
+        #preview blockquote p { margin: 0.3em 0; }
+        #preview ul, #preview ol { padding-left: 1.8em; margin: 0.6em 0; }
+        #preview li { margin: 0.3em 0; }
+        #preview li::marker { color: var(--accent); }
+        #preview hr {
+            border: none; height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border-hover), transparent);
+            margin: 2em 0;
+        }
+        #preview table { width: 100%; border-collapse: collapse; margin: 1em 0; font-size: 0.92em; }
+        #preview th {
+            background: var(--bg-card); border: 1px solid var(--border);
+            padding: 10px 14px; text-align: left; font-weight: 600; color: var(--accent);
+        }
+        #preview td { border: 1px solid var(--border); padding: 8px 14px; }
+        #preview tr:nth-child(even) td { background: rgba(0,232,143,0.02); }
+        #preview img { max-width: 100%; border-radius: 8px; margin: 0.8em 0; border: 1px solid var(--border); }
+
+        .tool-btn {
+            width: 34px; height: 34px;
+            display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 6px; border: 1px solid transparent;
+            background: transparent; color: var(--fg-muted);
+            cursor: pointer; font-size: 13px;
+            transition: all 0.15s ease;
+        }
+        .tool-btn:hover {
+            background: var(--accent-glow); color: var(--accent);
+            border-color: rgba(0,232,143,0.2);
+        }
+        .tool-btn:active { transform: scale(0.92); }
+
+        .template-card {
+            background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 10px; padding: 16px 18px;
+            cursor: pointer; transition: all 0.2s ease;
+            position: relative; overflow: hidden;
+        }
+        .template-card::before {
+            content: ''; position: absolute;
+            top: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .template-card:hover {
+            border-color: var(--border-hover); background: var(--bg-elevated);
+            transform: translateY(-2px);
+        }
+        .template-card:hover::before { opacity: 1; }
+
+        .toast {
+            position: fixed; bottom: 24px; right: 24px;
+            background: var(--bg-card); border: 1px solid var(--border-hover);
+            color: var(--fg); padding: 14px 22px; border-radius: 10px;
+            font-size: 14px; font-weight: 500; z-index: 9999;
+            display: flex; align-items: center; gap: 10px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+            animation: toastIn 0.3s ease forwards; pointer-events: none;
+        }
+        .toast.out { animation: toastOut 0.3s ease forwards; }
+        .toast .toast-icon { color: var(--accent); font-size: 16px; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(20px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateY(0) scale(1); }
+            to { opacity: 0; transform: translateY(20px) scale(0.95); }
+        }
+
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.65); backdrop-filter: blur(6px);
+            z-index: 1000; display: flex; align-items: center; justify-content: center;
+            animation: fadeIn 0.2s ease;
+        }
+        .modal-overlay.hidden { display: none; }
+        .modal-box {
+            background: var(--bg-elevated); border: 1px solid var(--border);
+            border-radius: 14px; padding: 28px;
+            max-width: 620px; width: 90%; max-height: 80vh; overflow-y: auto;
+            animation: modalIn 0.25s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.92) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .btn-primary {
+            background: var(--accent); color: #0a0f0d;
+            font-weight: 700; padding: 10px 20px; border-radius: 8px;
+            border: none; cursor: pointer; font-size: 14px;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.15s ease;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-primary:hover { background: #00ffa3; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,232,143,0.3); }
+        .btn-primary:active { transform: scale(0.97); }
+
+        .btn-ghost {
+            background: transparent; color: var(--fg-muted);
+            font-weight: 500; padding: 10px 18px; border-radius: 8px;
+            border: 1px solid var(--border); cursor: pointer;
+            font-size: 14px; font-family: 'Space Grotesk', sans-serif;
+            transition: all 0.15s ease;
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-ghost:hover { border-color: var(--border-hover); color: var(--fg); background: var(--bg-card); }
+
+        .view-tab {
+            padding: 8px 16px; font-size: 13px; font-weight: 600;
+            border-radius: 6px; cursor: pointer; color: var(--fg-muted);
+            transition: all 0.15s; border: 1px solid transparent;
+            background: transparent; font-family: 'Space Grotesk', sans-serif;
+        }
+        .view-tab.active {
+            color: var(--accent); background: var(--accent-glow);
+            border-color: rgba(0,232,143,0.15);
+        }
+        .view-tab:hover:not(.active) { color: var(--fg); }
+
+        .filename-input {
+            background: var(--toolbar-bg); border: 1px solid var(--border);
+            color: var(--fg); font-family: 'JetBrains Mono', monospace;
+            font-size: 13px; padding: 6px 12px; border-radius: 6px;
+            outline: none; width: 180px; transition: border-color 0.15s;
+        }
+        .filename-input:focus { border-color: var(--accent); }
+
+        .stat-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--fg-muted); }
+        .stat-item i { font-size: 11px; }
+
+        .particle {
+            position: fixed; width: 2px; height: 2px;
+            background: var(--accent); border-radius: 50%;
+            pointer-events: none; opacity: 0; z-index: 0;
+            animation: particleFloat linear infinite;
+        }
+        @keyframes particleFloat {
+            0% { opacity: 0; transform: translateY(100vh) scale(0); }
+            10% { opacity: 0.4; }
+            90% { opacity: 0.1; }
+            100% { opacity: 0; transform: translateY(-10vh) scale(1); }
+        }
+
+        /* GitHub link in header */
+        .github-link {
+            display: inline-flex; align-items: center; gap: 6px;
+            color: var(--fg-muted); font-size: 13px; font-weight: 500;
+            text-decoration: none; padding: 6px 12px; border-radius: 6px;
+            border: 1px solid var(--border); transition: all 0.15s;
+        }
+        .github-link:hover {
+            color: var(--fg); border-color: var(--border-hover);
+            background: var(--bg-card);
+        }
+
+        /* Footer */
+        .site-footer {
+            position: relative; z-index: 10;
+            border-top: 1px solid var(--border);
+            padding: 20px;
+            display: flex; align-items: center; justify-content: center;
+            gap: 8px; flex-wrap: wrap;
+        }
+        .site-footer a {
+            color: var(--accent); text-decoration: none;
+            transition: color 0.15s;
+        }
+        .site-footer a:hover { color: #fff; text-decoration: underline; }
+
+        @media (max-width: 768px) {
+            #editor, #preview { padding: 16px; font-size: 13px; }
+            .filename-input { width: 120px; }
+            .modal-box { padding: 20px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+            .particle { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles -->
+    <div id="particles" aria-hidden="true"></div>
+
+    <!-- Header -->
+    <header style="position:relative;z-index:10;border-bottom:1px solid var(--border);background:rgba(10,15,13,0.85);backdrop-filter:blur(12px);">
+        <div style="max-width:1440px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <!-- Logo -->
+            <a href="https://readmehub.store" style="display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;">
+                <div style="width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#00ffa3);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                    <i class="fa-brands fa-markdown" style="color:#0a0f0d;font-size:18px;"></i>
+                </div>
+                <div>
+                    <h1 style="font-size:18px;font-weight:800;letter-spacing:-0.5px;line-height:1.1;">Readme Hub</h1>
+                    <span style="font-size:11px;color:var(--fg-muted);font-weight:400;">for GitHub</span>
+                </div>
+            </a>
+
+            <!-- Center: view tabs -->
+            <div style="display:flex;gap:4px;background:var(--toolbar-bg);border-radius:8px;padding:3px;border:1px solid var(--border);">
+                <button class="view-tab active" data-view="split" onclick="setView('split')" aria-label="Split view">
+                    <i class="fa-solid fa-columns" style="margin-right:4px;font-size:11px;"></i> Split
+                </button>
+                <button class="view-tab" data-view="editor" onclick="setView('editor')" aria-label="Editor only">
+                    <i class="fa-solid fa-code" style="margin-right:4px;font-size:11px;"></i> Edit
+                </button>
+                <button class="view-tab" data-view="preview" onclick="setView('preview')" aria-label="Preview only">
+                    <i class="fa-solid fa-eye" style="margin-right:4px;font-size:11px;"></i> Preview
+                </button>
+            </div>
+
+            <!-- Right: actions -->
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <a href="https://github.com/ramykatour" target="_blank" rel="noopener noreferrer" class="github-link" aria-label="GitHub profile of Ramy Katour">
+                    <i class="fa-brands fa-github" style="font-size:16px;"></i>
+                    <span class="hide-mobile">ramykatour</span>
+                </a>
+                <input type="text" class="filename-input" id="filename" value="README.md" aria-label="File name" spellcheck="false">
+                <button class="btn-ghost" onclick="openTemplates()" aria-label="Open templates">
+                    <i class="fa-solid fa-layer-group"></i> <span class="hide-mobile">Templates</span>
+                </button>
+                <button class="btn-ghost" onclick="copyToClipboard()" aria-label="Copy to clipboard">
+                    <i class="fa-regular fa-copy"></i> <span class="hide-mobile">Copy</span>
+                </button>
+                <button class="btn-primary" onclick="downloadFile()" aria-label="Download file">
+                    <i class="fa-solid fa-download"></i> <span class="hide-mobile">Save</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Toolbar -->
+    <nav style="position:relative;z-index:10;border-bottom:1px solid var(--border);background:var(--toolbar-bg);" aria-label="Formatting toolbar">
+        <div style="max-width:1440px;margin:0 auto;padding:6px 20px;display:flex;align-items:center;gap:2px;flex-wrap:wrap;">
+            <button class="tool-btn" onclick="insertMarkdown('heading')" title="Heading (Ctrl+1)" aria-label="Heading"><i class="fa-solid fa-heading"></i></button>
+            <button class="tool-btn" onclick="insertMarkdown('bold')" title="Bold (Ctrl+B)" aria-label="Bold"><i class="fa-solid fa-bold"></i></button>
+            <button class="tool-btn" onclick="insertMarkdown('italic')" title="Italic (Ctrl+I)" aria-label="Italic"><i class="fa-solid fa-italic"></i></button>
+            <button class="tool-btn" onclick="insertMarkdown('strikethrough')" title="Strikethrough" aria-label="Strikethrough"><i class="fa-solid fa-strikethrough"></i></button>
+            <div style="width:1px;height:20px;background:var(--border);margin:0 6px;"></div>
+            <button class="tool-btn" onclick="insertMarkdown('code')" title="Inline Code" aria-label="Inline code"><i class="fa-solid fa-code"></i></button>
+            <button class="tool-btn" onclick="insertMarkdown('codeblock')" title="Code Block" aria-label="Code block"><i class="fa-solid fa-file-code"></i></button>
+            <button class="tool-btn" onclick="insertMarkdown('quote')" title="Blockquote" aria-label="Blockquote"><i class="fa-solid fa-quote-left"></i></button>
+            <div style="width:1px;height:20px;background:var(--border);margin:0 6px;"></div>
+            <button class="tool-btn" onclick="insertMarkdown('link')" title="Link (Ctrl+K)" aria-label="Link"><i class="fa-solid fa-link"></i></button>
+            <button class="tool-btn" onclick="insertMarkdown('image')" title="Image" aria-label="Image"><i class="fa-solid fa-image"></i></button>
+            <button class="tool-btn" onclick="insertMarkdown('hr')" title="Horizontal Rule" aria-label="Horizontal rule"><i class="fa-solid fa-minus"></i></button>
+            <div style="width:1px;height:20px;background:var(--border);margin:0 6px;"></div>
+            <button class="tool-btn" onclick="insertMarkdown('ul')" title="Unordered List" aria-label="Unordered list"><i class="fa-solid fa-list-ul"></i></button>
+            <button class="tool-btn" onclick="insertMarkdown('ol')" title="Ordered List" aria-label="Ordered list"><i class="fa-solid fa-list-ol"></i></button>
+            <button class="tool-btn" onclick="insertMarkdown('table')" title="Table" aria-label="Table"><i class="fa-solid fa-table"></i></button>
+            <button class="tool-btn" onclick="insertMarkdown('checklist')" title="Task List" aria-label="Task list"><i class="fa-solid fa-square-check"></i></button>
+
+            <div style="flex:1;"></div>
+
+            <div style="display:flex;gap:14px;margin-right:8px;" id="stats">
+                <span class="stat-item"><i class="fa-solid fa-font"></i> <span id="charCount">0</span></span>
+                <span class="stat-item"><i class="fa-solid fa-align-left"></i> <span id="wordCount">0</span> words</span>
+                <span class="stat-item"><i class="fa-solid fa-bars"></i> <span id="lineCount">0</span> lines</span>
+            </div>
+
+            <button class="tool-btn" onclick="clearEditor()" title="Clear Editor" aria-label="Clear editor" style="color:var(--danger);"><i class="fa-solid fa-trash-can"></i></button>
+        </div>
+    </nav>
+
+    <!-- Main Editor Area -->
+    <main style="position:relative;z-index:5;display:flex;height:calc(100vh - 105px);" id="editorContainer">
+        <!-- Editor Panel -->
+        <section id="editorPanel" style="flex:1;display:flex;flex-direction:column;border-right:1px solid var(--border);min-width:0;" aria-label="Markdown editor">
+            <div style="padding:6px 20px;font-size:11px;font-weight:600;color:var(--fg-muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);background:var(--toolbar-bg);display:flex;align-items:center;gap:6px;">
+                <i class="fa-solid fa-pen-to-square" style="font-size:10px;color:var(--accent);"></i> Editor
+                <span id="saveIndicator" style="margin-left:auto;font-size:10px;color:var(--accent);opacity:0;transition:opacity 0.3s;">
+                    <i class="fa-solid fa-check"></i> Saved
+                </span>
+            </div>
+            <div style="flex:1;overflow:hidden;">
+                <textarea id="editor" placeholder="Start writing your README here...&#10;&#10;Or click **Templates** to get started with a pre-built layout." spellcheck="false" aria-label="Markdown content"></textarea>
+            </div>
+        </section>
+
+        <!-- Preview Panel -->
+        <section id="previewPanel" style="flex:1;display:flex;flex-direction:column;min-width:0;" aria-label="Markdown preview">
+            <div style="padding:6px 20px;font-size:11px;font-weight:600;color:var(--fg-muted);text-transform:uppercase;letter-spacing:1px;border-bottom:1px solid var(--border);background:var(--toolbar-bg);display:flex;align-items:center;gap:6px;">
+                <i class="fa-solid fa-eye" style="font-size:10px;color:var(--accent);"></i> Preview
+            </div>
+            <div id="preview" style="flex:1;overflow-y:auto;"></div>
+        </section>
+    </main>
+
+    <!-- Templates Modal -->
+    <div class="modal-overlay hidden" id="templatesModal" onclick="closeTemplatesOutside(event)" role="dialog" aria-modal="true" aria-label="README Templates">
+        <div class="modal-box">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                <h2 style="font-size:20px;font-weight:800;">README Templates</h2>
+                <button class="tool-btn" onclick="closeTemplates()" aria-label="Close templates"><i class="fa-solid fa-xmark" style="font-size:16px;"></i></button>
+            </div>
+            <p style="color:var(--fg-muted);font-size:14px;margin-bottom:18px;">Choose a template to get started quickly. You can customize everything after inserting.</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;" id="templateGrid"></div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <p style="font-size:12px;color:var(--fg-muted);">
+            Readme Hub — Free online Markdown README editor with live preview, templates, and export for GitHub repositories.
+        </p>
+        <span style="color:var(--border);">|</span>
+        <p style="font-size:12px;color:var(--fg-muted);">
+            Built by <a href="https://github.com/ramykatour" target="_blank" rel="noopener noreferrer">Ramy Katour</a>
+        </p>
+        <span style="color:var(--border);">|</span>
+        <a href="https://readmehub.store" style="font-size:12px;color:var(--fg-muted);text-decoration:none;transition:color 0.15s;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--fg-muted)'">readmehub.store</a>
+    </footer>
+
+    <script>
+        // ========================
+        // Templates Data
+        // ========================
+        const templates = [
+            {
+                name: 'Minimal',
+                desc: 'Clean and simple starter README',
+                icon: 'fa-solid fa-feather',
+                content: `# Project Name
+
+A brief description of what this project does and who it's for.
+
+## Installation
+
+\`\`\`bash
+npm install project-name
+\`\`\`
+
+## Usage
+
+\`\`\`js
+import { something } from 'project-name';
+
+something();
+\`\`\`
+
+## License
+
+[MIT](https://choosealicense.com/licenses/mit/)`
+            },
+            {
+                name: 'Standard',
+                desc: 'Full-featured README with all sections',
+                icon: 'fa-solid fa-file-lines',
+                content: `# Project Name
+
+> A short, punchy description of your project.
+
+![License](https://img.shields.io/badge/license-MIT-green) ![Version](https://img.shields.io/badge/version-1.0.0-blue)
+
+## Overview
+
+Explain what your project is about, why it exists, and what problem it solves. Keep it to 2-3 sentences.
+
+## Features
+
+- Feature one — brief description
+- Feature two — brief description
+- Feature three — brief description
+- Feature four — brief description
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js >= 18
+- npm >= 9
+
+### Installation
+
+\`\`\`bash
+git clone https://github.com/username/project-name.git
+cd project-name
+npm install
+\`\`\`
+
+### Usage
+
+\`\`\`js
+import { main } from './src/index.js';
+
+main({ option: true });
+\`\`\`
+
+## API Reference
+
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
+| \`option\`  | \`boolean\` | Required. Enables feature X |
+| \`mode\`    | \`string\`  | Optional. Defaults to \`"auto"\` |
+
+## Contributing
+
+Contributions are welcome! Please read the [contributing guidelines](CONTRIBUTING.md) first.
+
+1. Fork the repository
+2. Create your feature branch (\`git checkout -b feature/amazing\`)
+3. Commit your changes (\`git commit -m 'Add amazing feature'\`)
+4. Push to the branch (\`git push origin feature/amazing\`)
+5. Open a Pull Request
+
+## License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) for more information.`
+            },
+            {
+                name: 'Library / Package',
+                desc: 'For npm/pip libraries and packages',
+                icon: 'fa-solid fa-cube',
+                content: `# package-name
+
+[![npm version](https://img.shields.io/npm/v/package-name.svg)](https://www.npmjs.com/package/package-name)
+[![Downloads](https://img.shields.io/npm/dm/package-name.svg)](https://www.npmjs.com/package/package-name)
+[![License](https://img.shields.io/npm/l/package-name.svg)](LICENSE)
+
+Lightning-fast library for doing X with zero dependencies.
+
+## Install
+
+\`\`\`bash
+npm install package-name
+\`\`\`
+
+## Quick Start
+
+\`\`\`js
+import { create } from 'package-name';
+
+const instance = create({
+  key: 'your-key',
+  debug: false
+});
+
+await instance.run();
+\`\`\`
+
+## API
+
+### \`create(options)\`
+
+Creates a new instance.
+
+| Option  | Type      | Default | Description         |
+| ------- | --------- | ------- | ------------------- |
+| \`key\`    | \`string\`  | —       | Your API key        |
+| \`debug\`  | \`boolean\` | \`false\` | Enable debug logging |
+| \`timeout\`| \`number\`  | \`5000\`  | Request timeout (ms) |
+
+### \`instance.run()\`
+
+Executes the main operation. Returns a \`Promise\`.
+
+\`\`\`js
+const result = await instance.run();
+console.log(result);
+\`\`\`
+
+## Examples
+
+See the [examples](./examples/) directory for full use cases.
+
+## Benchmarks
+
+| Operation | Speed      | Compared To |
+| --------- | ---------- | ----------- |
+| Parse     | 1.2ms      | 3x faster   |
+| Transform | 0.8ms      | 5x faster   |
+| Serialize | 0.3ms      | 2x faster   |
+
+## License
+
+MIT`
+            },
+            {
+                name: 'CLI Tool',
+                desc: 'For command-line applications',
+                icon: 'fa-solid fa-terminal',
+                content: `# cli-tool
+
+[![npm version](https://img.shields.io/npm/v/cli-tool.svg)](https://www.npmjs.com/package/cli-tool)
+[![License](https://img.shields.io/npm/l/cli-tool.svg)](LICENSE)
+
+A powerful CLI tool that does X, Y, and Z right from your terminal.
+
+## Install
+
+\`\`\`bash
+npm install -g cli-tool
+\`\`\`
+
+## Usage
+
+\`\`\`
+cli-tool <command> [options]
+
+Commands:
+  init       Initialize a new project
+  build      Build the project
+  deploy     Deploy to production
+  validate   Validate configuration
+
+Options:
+  -h, --help     Show help
+  -v, --version  Show version number
+  -c, --config   Path to config file
+  --force        Skip confirmation prompts
+\`\`\`
+
+### Examples
+
+\`\`\`bash
+# Initialize a new project
+cli-tool init my-project
+
+# Build with custom config
+cli-tool build --config ./config.prod.json
+
+# Deploy to production
+cli-tool deploy --force
+\`\`\`
+
+## Configuration
+
+Create a \`.clitoolrc.json\` in your project root:
+
+\`\`\`json
+{
+  "input": "./src",
+  "output": "./dist",
+  "minify": true,
+  "sourcemap": false
+}
+\`\`\`
+
+## Contributing
+
+Pull requests welcome. Please open an issue first to discuss changes.
+
+## License
+
+MIT`
+            },
+            {
+                name: 'Full Stack App',
+                desc: 'For web apps with frontend and backend',
+                icon: 'fa-solid fa-layer-group',
+                content: `# App Name
+
+A modern full-stack web application built with [Framework] and [Database].
+
+![Demo Screenshot](https://placehold.co/800x400/16201b/00e88f?text=Screenshot+Here)
+
+## Tech Stack
+
+**Frontend:** React, Tailwind CSS, TypeScript
+**Backend:** Node.js, Express, PostgreSQL
+**Infra:** Docker, GitHub Actions
+
+## Features
+
+- User authentication with JWT
+- Real-time updates via WebSockets
+- Responsive dashboard with charts
+- Role-based access control
+- File upload with drag & drop
+- Dark mode support
+
+## Getting Started
+
+### Prerequisites
+
+- Docker & Docker Compose
+- Node.js >= 20
+
+### Setup
+
+\`\`\`bash
+# Clone the repo
+git clone https://github.com/username/app-name.git
+
+# Start services with Docker
+docker compose up -d
+
+# Run migrations
+npm run db:migrate
+
+# Seed development data
+npm run db:seed
+
+# Start development server
+npm run dev
+\`\`\`
+
+The app will be available at \`http://localhost:3000\`.
+
+### Environment Variables
+
+Copy \`.env.example\` to \`.env\` and fill in the values:
+
+\`\`\`env
+DATABASE_URL=postgresql://user:pass@localhost:5432/dbname
+JWT_SECRET=your-secret-key
+REDIS_URL=redis://localhost:6379
+\`\`\`
+
+## Project Structure
+
+\`\`\`
+├── src/
+│   ├── components/    # React components
+│   ├── pages/         # Page-level components
+│   ├── hooks/         # Custom React hooks
+│   ├── server/        # Express server
+│   │   ├── routes/
+│   │   ├── middleware/
+│   │   └── models/
+│   └── shared/        # Shared types & utils
+├── docker/
+├── tests/
+└── docs/
+\`\`\`
+
+## Testing
+
+\`\`\`bash
+# Unit tests
+npm run test
+
+# Integration tests
+npm run test:integration
+
+# Coverage report
+npm run test:coverage
+\`\`\`
+
+## Deployment
+
+\`\`\`bash
+# Build for production
+npm run build
+
+# Start production server
+npm run start
+\`\`\`
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for full deployment guide.
+
+## License
+
+MIT`
+            },
+            {
+                name: 'Open Source',
+                desc: 'Community-focused with badges and guidelines',
+                icon: 'fa-brands fa-github',
+                content: `# Project Name
+
+[![GitHub stars](https://img.shields.io/github/stars/username/project-name?style=social)](https://github.com/username/project-name)
+[![GitHub forks](https://img.shields.io/github/forks/username/project-name?style=social)](https://github.com/username/project-name)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](http://makeapullrequest.com)
+[![Code of Conduct](https://img.shields.io/badge/Code%20of%20Conduct-v1.0-ff69b4.svg)](CODE_OF_CONDUCT.md)
+
+> An open-source project built by the community, for the community.
+
+## Introduction
+
+A paragraph explaining the motivation behind the project and what makes it unique.
+
+## Roadmap
+
+- [x] Core functionality
+- [x] Basic documentation
+- [ ] Plugin system
+- [ ] Internationalization
+- [ ] Performance optimizations
+- [ ] Mobile app
+
+## Getting Involved
+
+We love contributions! There are many ways to help:
+
+- **Report bugs** — [Open an issue](../../issues/new)
+- **Suggest features** — [Feature requests](../../issues/new?labels=enhancement)
+- **Write code** — [Good first issues](../../labels/good%20first%20issue)
+- **Improve docs** — [Documentation issues](../../labels/documentation)
+- **Spread the word** — Share with friends and colleagues
+
+### Development Setup
+
+\`\`\`bash
+git clone https://github.com/username/project-name.git
+cd project-name
+npm install
+npm run dev
+\`\`\`
+
+### Pull Request Process
+
+1. Fork and create a branch from \`main\`
+2. Make your changes with tests
+3. Ensure all tests pass (\`npm test\`)
+4. Update documentation if needed
+5. Open a PR with a clear description
+
+Please read our [Code of Conduct](CODE_OF_CONDUCT.md) and [Contributing Guide](CONTRIBUTING.md).
+
+## Maintainers
+
+| Name | Role | GitHub |
+| ---- | ---- | ------ |
+| You | Lead | [@username](https://github.com/username) |
+
+## Sponsors
+
+Support this project by [becoming a sponsor](https://github.com/sponsors/username).
+
+## License
+
+[MIT](LICENSE) — Free for personal and commercial use.`
+            }
+        ];
+
+        // ========================
+        // State
+        // ========================
+        let currentView = 'split';
+        let autoSaveTimer = null;
+
+        // ========================
+        // Initialization
+        // ========================
+        const editor = document.getElementById('editor');
+        const preview = document.getElementById('preview');
+        const filenameInput = document.getElementById('filename');
+
+        marked.setOptions({ breaks: true, gfm: true });
+
+        // Load saved content from localStorage
+        function loadSavedContent() {
+            const saved = localStorage.getItem('readmehub_content');
+            const savedFilename = localStorage.getItem('readmehub_filename');
+            if (saved !== null) {
+                editor.value = saved;
+            }
+            if (savedFilename) {
+                filenameInput.value = savedFilename;
+            }
+            updatePreview();
+            updateStats();
+        }
+
+        // ========================
+        // Preview Update
+        // ========================
+        function updatePreview() {
+            const raw = editor.value;
+            const html = marked.parse(raw);
+            preview.innerHTML = DOMPurify.sanitize(html);
+        }
+
+        // ========================
+        // Stats Update
+        // ========================
+        function updateStats() {
+            const text = editor.value;
+            document.getElementById('charCount').textContent = text.length;
+            document.getElementById('wordCount').textContent = text.trim() ? text.trim().split(/\s+/).length : 0;
+            document.getElementById('lineCount').textContent = text.split('\n').length;
+        }
+
+        // ========================
+        // Auto-save
+        // ========================
+        function triggerAutoSave() {
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                localStorage.setItem('readmehub_content', editor.value);
+                localStorage.setItem('readmehub_filename', filenameInput.value);
+                const indicator = document.getElementById('saveIndicator');
+                indicator.style.opacity = '1';
+                setTimeout(() => { indicator.style.opacity = '0'; }, 1500);
+            }, 800);
+        }
+
+        // ========================
+        // View Switching
+        // ========================
+        function setView(view) {
+            currentView = view;
+            const editorPanel = document.getElementById('editorPanel');
+            const previewPanel = document.getElementById('previewPanel');
+
+            document.querySelectorAll('.view-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.view === view);
+            });
+
+            editorPanel.style.display = (view === 'preview') ? 'none' : 'flex';
+            previewPanel.style.display = (view === 'editor') ? 'none' : 'flex';
+
+            if (view === 'split') {
+                editorPanel.style.flex = '1';
+                previewPanel.style.flex = '1';
+                editorPanel.style.borderRight = '1px solid var(--border)';
+            } else {
+                editorPanel.style.flex = '1';
+                previewPanel.style.flex = '1';
+                editorPanel.style.borderRight = 'none';
+            }
+        }
+
+        // ========================
+        // Markdown Insertion
+        // ========================
+        function insertMarkdown(type) {
+            editor.focus();
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selected = editor.value.substring(start, end);
+            let before = '', after = '';
+
+            switch(type) {
+                case 'heading': before = '## '; break;
+                case 'bold': before = '**'; after = '**'; break;
+                case 'italic': before = '*'; after = '*'; break;
+                case 'strikethrough': before = '~~'; after = '~~'; break;
+                case 'code': before = '`'; after = '`'; break;
+                case 'codeblock': before = '```\n'; after = '\n```'; break;
+                case 'quote': before = '> '; break;
+                case 'link': before = '['; after = '](https://)'; break;
+                case 'image': before = '![alt text]('; after = ')'; break;
+                case 'hr': before = '\n---\n'; break;
+                case 'ul': before = '- '; break;
+                case 'ol': before = '1. '; break;
+                case 'table':
+                    before = '| Column 1 | Column 2 | Column 3 |\n| -------- | -------- | -------- |\n| Cell 1   | Cell 2   | Cell 3   |\n| Cell 4   | Cell 5   | Cell 6   |';
+                    break;
+                case 'checklist': before = '- [ ] '; break;
+            }
+
+            const replacement = before + selected + after;
+            editor.setRangeText(replacement, start, end, 'end');
+
+            if (!selected && after) {
+                editor.selectionStart = start + before.length;
+                editor.selectionEnd = start + before.length;
+            }
+
+            onEditorInput();
+        }
+
+        // ========================
+        // Keyboard Shortcuts
+        // ========================
+        editor.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.setRangeText('  ', start, end, 'end');
+                onEditorInput();
+                return;
+            }
+
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key.toLowerCase()) {
+                    case 'b': e.preventDefault(); insertMarkdown('bold'); break;
+                    case 'i': e.preventDefault(); insertMarkdown('italic'); break;
+                    case 'k': e.preventDefault(); insertMarkdown('link'); break;
+                    case '1': e.preventDefault(); insertMarkdown('heading'); break;
+                    case 's': e.preventDefault(); downloadFile(); break;
+                }
+            }
+        });
+
+        // ========================
+        // Editor Input Handler
+        // ========================
+        function onEditorInput() {
+            updatePreview();
+            updateStats();
+            triggerAutoSave();
+        }
+
+        editor.addEventListener('input', onEditorInput);
+        filenameInput.addEventListener('input', triggerAutoSave);
+
+        // ========================
+        // File Operations
+        // ========================
+        function downloadFile() {
+            const filename = filenameInput.value.trim() || 'README.md';
+            const content = editor.value;
+            const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename.endsWith('.md') ? filename : filename + '.md';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('File downloaded successfully');
+        }
+
+        function copyToClipboard() {
+            if (!editor.value.trim()) {
+                showToast('Nothing to copy', 'warning');
+                return;
+            }
+            navigator.clipboard.writeText(editor.value).then(() => {
+                showToast('Copied to clipboard');
+            }).catch(() => {
+                editor.select();
+                document.execCommand('copy');
+                showToast('Copied to clipboard');
+            });
+        }
+
+        function clearEditor() {
+            if (!editor.value.trim()) return;
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `
+                <div class="modal-box" style="max-width:380px;text-align:center;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size:32px;color:var(--warning);margin-bottom:14px;"></i>
+                    <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Clear Editor?</h3>
+                    <p style="color:var(--fg-muted);font-size:14px;margin-bottom:22px;">This will erase all content. This action cannot be undone.</p>
+                    <div style="display:flex;gap:10px;justify-content:center;">
+                        <button class="btn-ghost" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+                        <button class="btn-primary" style="background:var(--danger);" onclick="confirmClear(this)">Clear</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+        }
+
+        function confirmClear(btn) {
+            editor.value = '';
+            onEditorInput();
+            btn.closest('.modal-overlay').remove();
+            showToast('Editor cleared');
+        }
+
+        // ========================
+        // Templates
+        // ========================
+        function renderTemplates() {
+            const grid = document.getElementById('templateGrid');
+            grid.innerHTML = templates.map((t, i) => `
+                <div class="template-card" onclick="applyTemplate(${i})" role="button" tabindex="0" aria-label="Use ${t.name} template"
+                    onkeydown="if(event.key==='Enter')applyTemplate(${i})">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                        <i class="${t.icon}" style="color:var(--accent);font-size:16px;"></i>
+                        <span style="font-weight:700;font-size:15px;">${t.name}</span>
+                    </div>
+                    <p style="color:var(--fg-muted);font-size:13px;line-height:1.5;">${t.desc}</p>
+                </div>
+            `).join('');
+        }
+
+        function openTemplates() {
+            renderTemplates();
+            document.getElementById('templatesModal').classList.remove('hidden');
+        }
+
+        function closeTemplates() {
+            document.getElementById('templatesModal').classList.add('hidden');
+        }
+
+        function closeTemplatesOutside(e) {
+            if (e.target === e.currentTarget) closeTemplates();
+        }
+
+        function applyTemplate(index) {
+            if (editor.value.trim()) {
+                const overlay = document.createElement('div');
+                overlay.className = 'modal-overlay';
+                overlay.innerHTML = `
+                    <div class="modal-box" style="max-width:380px;text-align:center;">
+                        <i class="fa-solid fa-layer-group" style="font-size:32px;color:var(--accent);margin-bottom:14px;"></i>
+                        <h3 style="font-size:18px;font-weight:700;margin-bottom:8px;">Apply Template?</h3>
+                        <p style="color:var(--fg-muted);font-size:14px;margin-bottom:22px;">This will replace your current content with the "${templates[index].name}" template.</p>
+                        <div style="display:flex;gap:10px;justify-content:center;">
+                            <button class="btn-ghost" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+                            <button class="btn-primary" onclick="doApplyTemplate(${index}, this)">Apply</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+            } else {
+                doApplyTemplate(index);
+            }
+        }
+
+        function doApplyTemplate(index, btn) {
+            editor.value = templates[index].content;
+            onEditorInput();
+            closeTemplates();
+            if (btn) btn.closest('.modal-overlay').remove();
+            showToast(`"${templates[index].name}" template applied`);
+        }
+
+        // ========================
+        // Toast Notifications
+        // ========================
+        function showToast(message, type = 'success') {
+            document.querySelectorAll('.toast').forEach(t => t.remove());
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            const iconClass = type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation';
+            const iconColor = type === 'success' ? 'var(--accent)' : 'var(--warning)';
+            toast.innerHTML = `<i class="fa-solid ${iconClass} toast-icon" style="color:${iconColor};"></i> ${message}`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('out');
+                setTimeout(() => toast.remove(), 300);
+            }, 2200);
+        }
+
+        // ========================
+        // Floating Particles
+        // ========================
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 15; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.animationDuration = (12 + Math.random() * 20) + 's';
+                p.style.animationDelay = (Math.random() * 15) + 's';
+                p.style.width = p.style.height = (1 + Math.random() * 2.5) + 'px';
+                container.appendChild(p);
+            }
+        }
+
+        // ========================
+        // Responsive helpers
+        // ========================
+        function addResponsiveStyles() {
+            const style = document.createElement('style');
+            style.textContent = `
+                @media (max-width: 640px) {
+                    .hide-mobile { display: none !important; }
+                    .btn-ghost, .btn-primary { padding: 8px 12px; font-size: 13px; }
+                    .filename-input { width: 100px; }
+                    #stats { display: none; }
+                    .github-link span { display: none; }
+                    .github-link { padding: 6px 8px; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // ========================
+        // Escape key to close modals
+        // ========================
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeTemplates();
+                document.querySelectorAll('.modal-overlay:not(#templatesModal)').forEach(m => m.remove());
+            }
+        });
+
+        // ========================
+        // Drag & Drop file support
+        // ========================
+        editor.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.outline = '2px dashed var(--accent)';
+            this.style.outlineOffset = '-4px';
+        });
+        editor.addEventListener('dragleave', function(e) {
+            this.style.outline = 'none';
+        });
+        editor.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.outline = 'none';
+            const file = e.dataTransfer.files[0];
+            if (file && (file.name.endsWith('.md') || file.name.endsWith('.txt') || file.name.endsWith('.markdown'))) {
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    editor.value = ev.target.result;
+                    filenameInput.value = file.name;
+                    onEditorInput();
+                    showToast(`Opened "${file.name}"`);
+                };
+                reader.readAsText(file);
+            } else {
+                showToast('Drop .md or .txt files only', 'warning');
+            }
+        });
+
+        // ========================
+        // Boot
+        // ========================
+        createParticles();
+        addResponsiveStyles();
+        loadSavedContent();
+    </script>
+</body>
+</html>
